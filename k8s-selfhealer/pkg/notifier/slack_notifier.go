@@ -17,3 +17,4 @@ func SendSlackAlert(webhookURL, message string) error {
 	_, err := http.Post(webhookURL, "application/json", bytes.NewBuffer(body))
 	return err
 }
+
