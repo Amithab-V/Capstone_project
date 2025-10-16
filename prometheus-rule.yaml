@@ -1,0 +1,25 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: selfhealer-rules
+  namespace: monitoring
+spec:
+  groups:
+  - name: selfhealer.rules
+    rules:
+    - alert: NodeNotReady
+      expr: k8s_node_health_status == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Node not ready: {{ $labels.node }}"
+        description: "Kubernetes node {{ $labels.node }} has been NotReady for 5m"
+    - alert: PodNotReady
+      expr: k8s_pod_ready_status == 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod not ready: {{ $labels.namespace }}/{{ $labels.pod }}"
+        description: "Pod has been unready for 5m"

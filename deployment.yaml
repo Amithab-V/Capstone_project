@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-selfhealer
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-selfhealer
+  template:
+    metadata:
+      labels:
+        app: k8s-selfhealer
+    spec:
+      serviceAccountName: selfhealer-sa
+      containers:
+      - name: selfhealer
+        image: yourdockerhubusername/k8s-selfhealer:v3
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "200m"

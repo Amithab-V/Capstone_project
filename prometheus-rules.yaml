@@ -1,0 +1,35 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: selfhealer-alerts
+  namespace: monitoring
+spec:
+  groups:
+    - name: pod-health
+      rules:
+        - alert: PodCrashLooping
+          expr: kube_pod_container_status_restarts_total > 3
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod restarting frequently"
+            description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has restarted more than 3 times in 2 minutes."
+
+        - alert: NodeNotReady
+          expr: kube_node_status_condition{condition="Ready",status="false"} == 1
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node Not Ready"
+            description: "Node {{ $labels.node }} is not ready."
+
+        - alert: SelfHealingAction
+          expr: increase(selfhealer_actions_total[5m]) > 0
+          for: 30s
+          labels:
+            severity: info
+          annotations:
+            summary: "Self-Healing Action Triggered"
+            description: "A pod was automatically recovered by the self-healer service."
